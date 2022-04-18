@@ -1,10 +1,3 @@
-//
-//  Kana.swift
-//
-//  Created by Mac Van Anh on 8/31/20.
-//  Copyright © 2020 Mac Van Anh. All rights reserved.
-//
-
 import Foundation
 
 public struct Kana: Equatable, Hashable {
@@ -178,8 +171,30 @@ public struct Kana: Equatable, Hashable {
 
         return nil
     }
+    
+    private static func addProlongedSoundMark(char: String.SubSequence) -> String {
+        switch char {
+            case "a":
+                return "ā"
 
-    public static func convert(_ input: String, to kana: Kana.KanaType) -> String {
+            case "i":
+                return "ī"
+        
+            case "u":
+                return "ū"
+        
+            case "e":
+                return "ē"
+        
+            case "o":
+                return "ō"
+            
+            default:
+                return String(char)
+        }
+    }
+
+    public static func convert(_ input: String, to kana: Kana.KanaType, useProlongedSoundMark: Bool = false) -> String {
         let trimmed: String = input.trimmingCharacters(in: .whitespacesAndNewlines)
         let tokenizer: CFStringTokenizer =
             CFStringTokenizerCreate(kCFAllocatorDefault,
@@ -189,49 +204,66 @@ public struct Kana: Equatable, Hashable {
                                     Locale(identifier: "ja") as CFLocale)
 
         switch kana {
-        case .hiragana:
-            return tokenizer.hiragana
-        case .katakana:
-            return tokenizer.katakana
-        case .romaji:
-            let hiragana = Array(tokenizer.hiragana)
-            var translated: String = ""
-            var doubleConsonants = false
-
-            let smallChars: [String.Element] = ["ゃ", "ょ", "ゅ", "ぁ", "ぃ", "ぅ", "ぇ", "ぉ"]
-
-            for i in 0..<hiragana.count {
-                if hiragana[i] == "っ" {
-                    doubleConsonants = true
-                    continue
+            case .hiragana:
+                return tokenizer.hiragana
+            case .katakana:
+                return tokenizer.katakana
+            case .romaji:
+                var text = Array(trimmed)
+                
+                if !useProlongedSoundMark {
+                    text = Array(tokenizer.hiragana)
                 }
+                
+                var translated: String = ""
+                var doubleConsonants = false
 
-                if smallChars.firstIndex(of: hiragana[i]) != nil {
-                    continue
-                }
+                let smallChars: [String.Element] = ["ゃ", "ょ", "ゅ", "ぁ", "ぃ", "ぅ", "ぇ", "ぉ",
+                                                    "ャ", "ュ", "ョ", "ァ", "ィ", "ゥ", "ェ", "ォ"]
 
-                if i + 1 < hiragana.count {
-                    if smallChars.firstIndex(of: hiragana[i + 1]) != nil {
-                        let gyon: String = "\(hiragana[i])\(hiragana[i + 1])"
-                        var romaji = Kana.toRomaji(of: gyon, in: .hiragana)!
-                        if doubleConsonants {
-                            romaji = romaji.prefix(1) + romaji
-                        }
-                        translated += romaji
-                        doubleConsonants = false
+                for i in 0..<text.count {
+                    if ["ッ", "っ"].firstIndex(of: text[i]) != nil {
+                        doubleConsonants = true
                         continue
                     }
-                }
 
-                var romaji = Kana.toRomaji(of: String(hiragana[i]), in: .hiragana) ?? String(hiragana[i])
-                if doubleConsonants {
-                    romaji = romaji.prefix(1) + romaji
-                }
-                translated += romaji
-                doubleConsonants = false
-            }
+                    if smallChars.firstIndex(of: text[i]) != nil {
+                        continue
+                    }
+                    
+                    if useProlongedSoundMark {
+                        if text[i] == "ー" && translated.count > 0 {
+                            translated = translated.prefix(translated.count - 1) + addProlongedSoundMark(char: translated.suffix(1))
+                            continue
+                        }
+                        
+                        if ["あ", "い", "う", "え", "お"].firstIndex(of: text[i]) != nil {
+                            let char = translated.suffix(1)
+                            if  (char == "a" && text[i] == "あ") ||
+                                (char == "i" && text[i] == "い") ||
+                                (char == "u" && text[i] == "う") ||
+                                (char == "e" && (text[i] == "え" || text[i] == "い")) ||
+                                (char == "o" && (text[i] == "お" || text[i] == "う")) {
+                                translated = translated.prefix(translated.count - 1) + addProlongedSoundMark(char: translated.suffix(1))
+                                continue
+                            }
+                        }
+                    }
+                    
+                    var gyon: String = String(text[i])
+                    if i + 1 < text.count && smallChars.firstIndex(of: text[i + 1]) != nil {
+                        gyon = "\(text[i])\(text[i + 1])"
+                    }
 
-            return translated
+                    var romaji = Kana.toRomaji(of: gyon, in: .hiragana) ?? Kana.toRomaji(of: gyon, in: .katakana) ?? gyon
+                    
+                    if doubleConsonants {
+                        romaji = romaji.prefix(1) + romaji
+                    }
+                    translated += romaji
+                    doubleConsonants = false
+                }
+                return translated
         }
     }
 

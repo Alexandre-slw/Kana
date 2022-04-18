@@ -12,7 +12,7 @@ import Foundation
 public struct KanaColumns {
 
     public enum Keys: Int {
-        case a = 0, ka, ga, sa , za , ta , da, na, ha, ba, pa, ma, ya, ra, wa, n, kya, gya, ja, sha, cha, nya, hya, bya, pya, mya, rya
+        case a = 0, ka, ga, sa, za, ta, da, na, ha, ba, pa, ma, ya, ra, wa, n, kya, gya, ja, sha, cha, nya, hya, bya, pya, mya, rya
     }
 
     public static var seion: [KanaColumns.Keys] {
