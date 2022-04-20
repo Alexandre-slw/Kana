@@ -179,22 +179,37 @@ public struct Kana: Equatable, Hashable {
 
             case "i":
                 return "ī"
-        
+
             case "u":
                 return "ū"
-        
+
             case "e":
                 return "ē"
-        
+
             case "o":
                 return "ō"
-            
+
+            case "A":
+                return "Ā"
+
+            case "I":
+                return "Ī"
+
+            case "U":
+                return "Ū"
+
+            case "E":
+                return "Ē"
+
+            case "O":
+                return "Ō"
+
             default:
                 return String(char)
         }
     }
 
-    public static func convert(_ input: String, to kana: Kana.KanaType, useProlongedSoundMark: Bool = false) -> String {
+    public static func convert(_ input: String, to kana: Kana.KanaType, useProlongedSoundMark: Bool = false, romajiKatakanaUppercase: Bool = false) -> String {
         let trimmed: String = input.trimmingCharacters(in: .whitespacesAndNewlines)
         let tokenizer: CFStringTokenizer =
             CFStringTokenizerCreate(kCFAllocatorDefault,
@@ -255,7 +270,7 @@ public struct Kana: Equatable, Hashable {
                         gyon = "\(text[i])\(text[i + 1])"
                     }
 
-                    var romaji = Kana.toRomaji(of: gyon, in: .hiragana) ?? Kana.toRomaji(of: gyon, in: .katakana) ?? gyon
+                    var romaji = Kana.toRomaji(of: gyon, in: .hiragana) ?? (romajiKatakanaUppercase ? Kana.toRomaji(of: gyon, in: .katakana)?.uppercased() : Kana.toRomaji(of: gyon, in: .katakana)) ?? gyon
                     
                     if doubleConsonants {
                         romaji = romaji.prefix(1) + romaji
