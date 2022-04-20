@@ -140,6 +140,7 @@ final class KanaTestCase: XCTestCase {
         XCTAssertEqual(Kana.convert("ブルネー", to: .romaji, useProlongedSoundMark: true), "burunē")
         XCTAssertEqual(Kana.convert("ぶるねい", to: .romaji, useProlongedSoundMark: true), "burunē")
         XCTAssertEqual(Kana.convert("ブルネー", to: .romaji, useProlongedSoundMark: true, romajiKatakanaUppercase: true), "BURUNĒ")
+        XCTAssertEqual(Kana.convert("ブルネー", to: .romaji, useProlongedSoundMark: false, romajiKatakanaUppercase: true), "BURUNEE")
     }
 
     func test_randomInVoiceType() {

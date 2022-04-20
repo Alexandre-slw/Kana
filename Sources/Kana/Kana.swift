@@ -226,7 +226,7 @@ public struct Kana: Equatable, Hashable {
             case .romaji:
                 var text = Array(trimmed)
                 
-                if !useProlongedSoundMark {
+                if !useProlongedSoundMark && !romajiKatakanaUppercase {
                     text = Array(tokenizer.hiragana)
                 }
                 
@@ -263,6 +263,9 @@ public struct Kana: Equatable, Hashable {
                                 continue
                             }
                         }
+                    } else if text[i] == "ー" && translated.count > 0 {
+                        translated = translated + translated.suffix(1)
+                        continue
                     }
                     
                     var gyon: String = String(text[i])
