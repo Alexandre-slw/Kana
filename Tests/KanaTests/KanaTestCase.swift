@@ -35,6 +35,10 @@ final class KanaTestCase: XCTestCase {
         XCTAssertEqual(Kana.toRomaji(of: "ファ", in: .katakana), "fa")
         
         XCTAssertEqual(Kana.toRomaji(of: "ファ", in: .katakana), "fa")
+        
+        
+        XCTAssertEqual(Kana.toRomaji(of: "ゆ", in: .hiragana), "yu")
+        XCTAssertEqual(Kana.toRomaji(of: "ユ", in: .katakana), "yu")
     }
 
     func test_toKatakana() {
@@ -125,6 +129,8 @@ final class KanaTestCase: XCTestCase {
         let outputChiJiMuKatakana = Kana.convert(inputChiJiMuKatakana, to: .romaji)
         XCTAssertEqual(outputChiJiMuKatakana, "chijimu")
 
+        XCTAssertEqual(Kana.convert("フ", to: .romaji), "fu")
+        
         XCTAssertEqual(Kana.convert("アスファルトジャングル", to: .romaji), "asufarutojanguru")
         
         XCTAssertEqual(Kana.convert("はあハー", to: .romaji, useProlongedSoundMark: true), "hāhā")
